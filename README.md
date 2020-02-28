@@ -9,7 +9,6 @@ React의 컴포넌트는 클래스컴포넌트와 함수형컴포넌트로 나�
 클래스컴포넌트의 state와 달리 Hook의 state는 꼭 객체일 필요없이 어떤 타입이든 가능하다.  
 또한 useState는 처음 렌더링 되었을 때 한번 생성되며, state값을 기억하여 리렌더링 되었을 때 최신 state값을 반환한다.  
 
-
 ```js
 const [state, setState] = useState(initialState);
 // 첫 번째로 전달 된 인자(initialState)는 처음 렌더링되었을 때의 초기값.
@@ -17,8 +16,6 @@ const [state, setState] = useState(initialState);
 ```
 
 ```js
-import React, { useState } from 'react';
-
 const Count = () => {
   const [ count, setCount ] = useState(0);
 
@@ -29,104 +26,144 @@ const Count = () => {
     </div>
   );
 }
-
-ReactDOM.render(<Count />, document.getElementById('root'));
 ```
 
 ## useEffect
-기존 Life Cycle API를 대체하는 기능으로 매 렌더링이 된 후 실행되는 Side Effects이다.
-
+기존 Life Cycle 메소드는 마운트, 언마운트, 업데이트의 기준의 전후로 실행되는 메소드들로 나눠졌지만 Hook에서의 useEffect는 초기 렌더링을 포함한 매 렌더링될 떄마다 실행되는 Side Effect이다.  
+또한 두 번째 인자인 의존성배열을 통해 data fetch가 되어 업데이트될 때만 갱신할수 있고, 메모리 누수를 방지하기 위해 Cleanup함수를 리턴하여 언마운트 되는 상태값들을 정리할 수도 있다.  
 
 ```js
-// 마운트될때
 useEffect(() => {
-  // 컴포넌트가 마운트 될 때 실행할 코드
-}, []);
-
-// 업데이트될때
-useEffect(() => {
-  // 컴포넌트가 업데이트 될 때 실행할 코드
-});
-
-// 언마운트될때
-useEffect(() => {
+  // 매 렌더링될 때 마다 실행할 함수 입력
   return () => {
-    // 컴포넌트가 언마운트 될 때 실행할 코드
+    // 언마운트 될 때 cleanup할 함수 입력
   }
-}, []);
+}, []); // date fetch할 값을 의존성배열에 입력
 ```
 
 ```js
-import React, { useState, useEffect } from 'react';
+useEffect(
+  () => {
+    const subscription = props.source.subscribe();
 
-function Example() {
-  const [count, setCount] = useState(0);
-
-  useEffect(() => {
-    document.title = `You clicked ${count} times`;
-  });
-
-  return (
-    <div>
-      <p>You clicked {count} times</p>
-      <button onClick={() => setCount(count + 1)}>
-        Click me
-      </button>
-    </div>
-  );
-}
-
-ReactDOM.render(<Example />, document.getElementById('root'));
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [props.source]);
 ```
 
 ## useContext
-기존에는 데이터를 전달받기 위해서 전달받을 컴포넌트까지 몇번이고 props를 전달시켜야하는 번거러움이 있었는데 Context API로 이 부분이 해결되었고 Hook API의 useContext로 더욱 쉽게 사용이 가능해졌다.
-
-## useReducer
+기존 React Context를 이용하여 Context를 생성, Context.Provider로 저장, Context.Consumer로 접근하는 방식으로 계속 props를 내려받지 않아도 되었지만, context를 사용하는 갯수만큼 wrapping 해야하는 복잡한 구조였다.  
+Hook useContext는 이 부분이 개선되어 warpping 하지 않아도 필요한 Context값을 불러낼 수 있게 되었다.  
 
 ```js
-const [state, dispatch] = useReducer(reducer, initialArg, init);
+// Context 생성
+const VingleContext = React.createContext();
+const RandomContext = React.createContext();
+
+function HelloWorld() {
+  // 필요한 Context값을 불러옴
+  const message = React.useContext(VingleContext);
+  const num = React.useContext(RandomContext);
+
+  return (
+    // Context.Consumer로 wrapping하지 않음
+    <h1>{message} and random is {num}</h1>
+  );
+}
+
+function App() {
+  return (
+    // Context.Provider로 props값 저장
+    <VingleContext.Provider value="Hello Vingle!">
+      <RandomContext.Provider value={Math.random()}>
+        <HelloWorld />
+      </RandomContext.Provider>
+    </VingleContext.Provider>
+  );
+}
 ```
 
+## useReducer
+useState의 대체 함수
+다수의 하윗값을 갖는 경우 or 다음 state값과 이전 state값이 의존적인 경우
+상황에 따라 다양한 상태를 다른 값으로 업데이트해 주고 싶을때 사용하는 Hookl
+
 ```js
-import React, { useReducer } from 'react';
+const initialState = {
+  count: 0
+};
 
 function reducer(state, action) {
   switch (action.type) {
-    case 'INCREMENT':
-      return state + 1;
-    case 'DECREMENT':
-      return state - 1;
+    case 'increment':
+      return { count: state.count + 1 };
+    case 'decrement':
+      return { count: state.count - 1 };
     default:
-      return state;
+      throw new Error();
   }
 }
 
 function Counter() {
-  const [number, dispatch] = useReducer(reducer, 0);
-
-  const onIncrease = () => {
-    dispatch({ type: 'INCREMENT' });
-  };
-
-  const onDecrease = () => {
-    dispatch({ type: 'DECREMENT' });
-  };
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   return (
-    <div>
-      <h1>{number}</h1>
-      <button onClick={onIncrease}>+1</button>
-      <button onClick={onDecrease}>-1</button>
-    </div>
+    <>
+      Count: {state.count}
+      <button onClick={() => dispatch({type: 'decrement'})}>-</button>
+      <button onClick={() => dispatch({type: 'increment'})}>+</button>
+    </>
   );
-
-  ReactDOM.render(<Counter />, document.getElementById('root'));
 }
 ```
 
 ## useCallback
+useCallback은 Memoization기반으로 첫 번째 인자로 전달된 함수를 기억한다.  
+전달된 함수 안에서 참조된 값을 두 번째 인자인 의존성배열에 나타낸다면 참조된 값이 변경되었을때만 함수가 실행된다.  
+의존성배열이 비어있을경우에는 리렌더링될때마다 함수가 실행된다.  
+
+**Tip.** useCallback(fn, deps) = useMemo(() => fn, deps)
+
+```js
+const memoizedCallback = useCallback(
+  () => {
+    doSomething(a, b);
+  },
+  [a, b]
+);
+```
 
 ## useMemo
+useMemo는 Memoization기반으로 첫 번째 인자로 전달된 함수의 return된 결과값을 기억한다.  
+전달된 함수 안에서 참조된 값을 두 번째 인자인 의존성배열에 나타낸다면 참조된 값이 변경되었을때만 함수가 실행되어 새로운 결과값을 기억하게 된다.  
+의존성배열이 비어있을경우에는 리렌더링될때마다 함수가 실행되어 새로운 결과값을 저장한다.  
+
+```js
+const memoizedValue = useMemo(() =>
+  computeExpensiveValue(a, b),
+  [a, b]
+);
+
+```
 
 ## useRef
+컴포넌트에서 특정 DOM을 선택해야 할 때 주로 사용되며 useRef값이 바뀐다고 업데이트 되지 않는다.  
+useRef가 관리하는 변수의 값이 변경되면 바로 조회가능하여 setTimeout, setInterval으로 출력된 값, 외부 라이브러리를 사용하여 생성된 인스턴스값, scroll 위치값 등을 관리할 때도 쓰인다.  
+
+```js
+function TextInputWithFocusButton() {
+  const inputEl = useRef(null);
+
+  const onButtonClick = () => {
+    inputEl.current.focus();
+  };
+
+  return (
+    <>
+      <input ref={inputEl} type="text" />
+      <button onClick={onButtonClick}>Focus the input</button>
+    </>
+  );
+}
+```
