@@ -30,7 +30,7 @@ const Count = () => {
 
 ## useEffect
 기존 Life Cycle 메소드는 마운트, 언마운트, 업데이트의 기준의 전후로 실행되는 메소드들로 나눠졌지만 Hook에서의 useEffect는 초기 렌더링을 포함한 매 렌더링될 떄마다 실행되는 Side Effect이다.  
-또한 두 번째 인자인 의존성배열을 통해 data fetch가 되어 업데이트될 때만 갱신할수 있고, 메모리 누수를 방지하기 위해 Cleanup함수를 리턴하여 언마운트 되는 상태값들을 정리할 수도 있다.  
+또한 두 번째 인자인 의존성배열을 통해 data fetch가 되어 상태값이 변경되었을 때만 갱신할수 있고, 메모리 누수를 방지하기 위해 Cleanup함수를 리턴하여 언마운트 되는 상태값들을 정리할 수도 있다.  
 
 ```js
 useEffect(() => {
@@ -54,7 +54,7 @@ useEffect(
 
 ## useContext
 기존 React Context를 이용하여 Context를 생성, Context.Provider로 저장, Context.Consumer로 접근하는 방식으로 계속 props를 내려받지 않아도 되었지만, context를 사용하는 갯수만큼 wrapping 해야하는 복잡한 구조였다.  
-Hook useContext는 이 부분이 개선되어 warpping 하지 않아도 필요한 Context값을 불러낼 수 있게 되었다.  
+Hook useContext는 이 부분이 개선되어 warpping 하지 않아도 필요한 Context값을 불러낼 수 있게 되었다.  *context설명이 적음
 
 ```js
 // Context 생성
@@ -85,15 +85,16 @@ function App() {
 ```
 
 ## useReducer
-useState의 대체 함수
-다수의 하윗값을 갖는 경우 or 다음 state값과 이전 state값이 의존적인 경우
-상황에 따라 다양한 상태를 다른 값으로 업데이트해 주고 싶을때 사용하는 Hookl
+useReducer는 useState의 대체함수로써 동일하게 state관리를 해준다.  
+다른점으로는 상황에 따른 action값으로 dispatch하여 state값을 갱신해주며, 상태업데이트 로직(reducer)을 따로 불리할 수 있어 재사용도 가능하다.  
 
 ```js
+// 초기값 설정
 const initialState = {
   count: 0
 };
 
+// 상태업데이트 로직을 따로 분리
 function reducer(state, action) {
   switch (action.type) {
     case 'increment':
@@ -108,6 +109,7 @@ function reducer(state, action) {
 function Counter() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  // action.type값에 따라 새로운 state값 출력
   return (
     <>
       Count: {state.count}
@@ -137,7 +139,7 @@ const memoizedCallback = useCallback(
 ## useMemo
 useMemo는 Memoization기반으로 첫 번째 인자로 전달된 함수의 return된 결과값을 기억한다.  
 전달된 함수 안에서 참조된 값을 두 번째 인자인 의존성배열에 나타낸다면 참조된 값이 변경되었을때만 함수가 실행되어 새로운 결과값을 기억하게 된다.  
-의존성배열이 비어있을경우에는 리렌더링될때마다 함수가 실행되어 새로운 결과값을 저장한다.  
+의존성배열이 비어있을 경우에는 리렌더링될때마다 함수가 실행되어 새로운 결과값을 저장한다.  
 
 ```js
 const memoizedValue = useMemo(() =>
@@ -148,8 +150,7 @@ const memoizedValue = useMemo(() =>
 ```
 
 ## useRef
-컴포넌트에서 특정 DOM을 선택해야 할 때 주로 사용되며 useRef값이 바뀐다고 업데이트 되지 않는다.  
-useRef가 관리하는 변수의 값이 변경되면 바로 조회가능하여 setTimeout, setInterval으로 출력된 값, 외부 라이브러리를 사용하여 생성된 인스턴스값, scroll 위치값 등을 관리할 때도 쓰인다.  
+useRef는 렌더링과 관련없는 값인 DOM의 특정값이나 외부 라이브러리를 사용할때 주로 쓰이며 ref값이 바뀌어도 렌더링되지 않는다.   
 
 ```js
 function TextInputWithFocusButton() {
