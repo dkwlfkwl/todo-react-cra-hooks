@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useCallback } from 'react';
 import Form from './Form';
 import List from './List';
 
@@ -17,7 +18,7 @@ function App() {
   //   };
   // }, [todos]);
 
-  function insertNewTodo(value) {
+  const insertNewTodo = useCallback(value => {
     const newItem = {
       id: new Date().valueOf(),
       title: value.trim(),
@@ -25,36 +26,34 @@ function App() {
     };
 
     setTodos(() => [...todos, newItem]);
-  }
+  }, []);
 
-  function deleteTodo(id) {
+  const deleteTodo = useCallback(id => {
     setTodos(() => todos.filter((item) => item.id !== id));
-  }
+  }, []);
 
-  function toggleCompleted(id) {
+  const toggleCompleted = useCallback(id => {
     setTodos(() => todos.map((item) => {
       if(item.id === id) item.completed = !item.completed;
 
       return item;
     }));
-  }
+  }, []);
 
   function moveTodo(id, dir) {
-    console.log(todos)
     const targetIndex = todos.findIndex(item => item.id === id);
     const direction = dir === 'up' ? -1 : 1;
     const insertIndex = targetIndex >= 0 ? targetIndex + direction : targetIndex;
 
-    console.log(targetIndex, direction, insertIndex)
+    if(targetIndex === 0 && direction === -1) {
+      if(targetIndex === todos.length - 1 && direction === 1) {
+        return false;
+      }
+    }
 
-    // if(targetIndex === 0 && direction === -1) {
-    //   if(targetIndex === todos.length - 1 && direction === 1) {
-    //     return false;
-    //   }
-    // }
-
+    setTodos(() => todos.splice(insertIndex, 0, todos.splice(targetIndex, 1)[0]));
     // setTodos(() => {
-    //   state.todos.splice(insertIndex, 0, state.todos.splice(targetIndex, 1)[0]);
+    //   todos.splice(insertIndex, 0, todos.splice(targetIndex, 1)[0]);
 
     //   return todos;
     // });
