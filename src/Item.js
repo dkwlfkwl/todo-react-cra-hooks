@@ -1,23 +1,23 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 function Item(props) {
   const { id, title, completed, deleteTodo, toggleCompleted, moveTodo } = props;
 
-  function upMoveTodo() {
+  const upMoveTodo = useCallback(() => {
     moveTodo(id, 'up');
-  }
+  }, [moveTodo, id]);
 
-  function downMoveTodo() {
+  const downMoveTodo = useCallback(() => {
     moveTodo(id, 'down');
-  }
+  }, [moveTodo, id]);
 
-  function handleDeleteTodo() {
+  const handleDeleteTodo = useCallback(() => {
     deleteTodo(id);
-  }
+  }, [deleteTodo, id]);
 
-  function handleToggleCompleted() {
+  const handleToggleCompleted = useCallback(() => {
     toggleCompleted(id);
-  }
+  }, [toggleCompleted, id]);
 
   return (
     <li className={completed ? 'completed' : ''}>

@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 
 function Form(props) {
   const input = useRef(null);
 
-  const handleSubmit = function(e) {
+  const handleSubmit = useCallback(e => {
     const isKeyPress = e.type === 'keypress';
     const inputEl = input.current;
     const value = inputEl.value;
@@ -18,7 +18,7 @@ function Form(props) {
 
     inputEl.value = '';
     inputEl.focus();
-  }
+  }, [props]);
 
   return (
     <div className="header">
@@ -27,35 +27,5 @@ function Form(props) {
     </div>
   );
 }
-
-// class Form extends Component {
-//   refInput = React.createRef();
-
-//   handleSubmit = (e) => {
-//     const input = this.refInput.current;
-//     const value = input.value;
-//     const isKeyPress = e.type === 'keypress';
-
-//     if(isKeyPress) {
-//       if(e.key !== 'Enter' || value === '') return false;
-//     } else {
-//       if(value === '') return false;
-//     }
-
-//     this.props.insertNewTodo(value);
-
-//     input.value = '';
-//     input.focus();
-//   }
-
-//   render() {
-//     return (
-//       <div className="header">
-//         <input type="text" className="new-todo" ref={this.refInput} onKeyPress={this.handleSubmit}/>
-//         <button type="button" className="btn-submit" onClick={this.handleSubmit}>등록</button>
-//       </div>
-//     );
-//   }
-// }
 
 export default Form;
