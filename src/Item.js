@@ -1,7 +1,12 @@
-import React, { useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 
 function Item(props) {
-  const { id, title, completed, deleteTodo, toggleCompleted, moveTodo } = props;
+  const { index, id, title, completed, deleteTodo, toggleCompleted, moveTodo } = props;
+
+  useEffect(() => {
+    return () => {}
+    
+  }, [index, completed]);
 
   const upMoveTodo = useCallback(() => {
     moveTodo(id, 'up');
@@ -11,13 +16,13 @@ function Item(props) {
     moveTodo(id, 'down');
   }, [moveTodo, id]);
 
-  const handleDeleteTodo = useCallback(() => {
-    deleteTodo(id);
-  }, [deleteTodo, id]);
-
   const handleToggleCompleted = useCallback(() => {
     toggleCompleted(id);
   }, [toggleCompleted, id]);
+
+  const handleDeleteTodo = useCallback(() => {
+    deleteTodo(id);
+  }, [deleteTodo, id]);
 
   return (
     <li className={completed ? 'completed' : ''}>

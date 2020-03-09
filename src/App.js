@@ -1,23 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Form from './Form';
 import List from './List';
 
 function App() {
-  const [todos, setTodos] = useState([
-    { id: 1, title: '1', completed: true },
-    { id: 2, title: '2', completed: false },
-    { id: 3, title: '3', completed: true },
-    { id: 4, title: '4', completed: false }
-  ]);
+  const localStorageData = JSON.parse(localStorage.getItem('todolist')); // 한번만 작동하게
+  const [todos, setTodos] = useState(localStorageData !== null ? localStorageData : []);
 
-  // useEffect(() => {
-  //   localStorage.setItem('todolist', JSON.stringify(todos));
-
-  //   return () => {
-  //     localStorage.setItem('todolist', JSON.stringify(todos));
-  //   };
-  // }, [todos]);
+  useEffect(() => {
+    localStorage.setItem('todolist', JSON.stringify(todos));
+  }, [todos]);
 
   const insertNewTodo = useCallback(value => {
     const newItem = {
@@ -29,8 +21,22 @@ function App() {
     setTodos(() => [...todos, newItem]);
   }, [todos]);
 
-  const deleteTodo = useCallback(id => {
-    setTodos(() => todos.filter((item) => item.id !== id));
+  const moveTodo = useCallback((id, dir) => {
+    const direction = dir === 'up' ? -1 : 1;
+    const targetIndex = todos.findIndex(item => item.id === id);
+    const insertIndex = targetIndex >= 0 ? targetIndex + direction : targetIndex;
+
+    if(targetIndex === 0 && direction === -1) {
+      return false;
+    } else if(targetIndex === todos.length - 1 && direction === 1) {
+      return false;
+    }
+
+    setTodos(() => {
+      todos.splice(insertIndex, 0, todos.splice(targetIndex, 1)[0]);
+
+      return [...todos];
+    });
   }, [todos]);
 
   const toggleCompleted = useCallback(id => {
@@ -41,26 +47,8 @@ function App() {
     }));
   }, [todos]);
 
-  const moveTodo = useCallback((id, dir) => {
-    const targetIndex = todos.findIndex(item => item.id === id);
-    const direction = dir === 'up' ? -1 : 1;
-    const insertIndex = targetIndex >= 0 ? targetIndex + direction : targetIndex;
-
-    if(targetIndex === 0 && direction === -1) {
-      return false;
-    } else if(targetIndex === todos.length - 1 && direction === 1) {
-      return false;
-    }
-
-    setTodos(() => {
-      console.log(targetIndex)
-      console.log(insertIndex)
-      console.log(todos.splice(targetIndex, 1)[0])
-      console.log(todos)
-      todos.splice(insertIndex, 0, todos.splice(targetIndex, 1)[0]);
-
-      return todos
-    });
+  const deleteTodo = useCallback(id => {
+    setTodos(() => todos.filter((item) => item.id !== id));
   }, [todos]);
 
   return (
@@ -68,9 +56,9 @@ function App() {
       <Form insertNewTodo={insertNewTodo} />
       <List
         todos={todos}
+        moveTodo={moveTodo}
         toggleCompleted={toggleCompleted}
         deleteTodo={deleteTodo}
-        moveTodo={moveTodo}
       />
     </div>
   )

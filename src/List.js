@@ -6,9 +6,10 @@ function List(props) {
 
   return (
     <ul className="list">
-      {todos.map(({ id, title, completed }) => (
+      {todos.map(({ id, title, completed }, index) => (
         <Item
           key={id}
+          index={index}
           id={id}
           title={title}
           completed={completed}
