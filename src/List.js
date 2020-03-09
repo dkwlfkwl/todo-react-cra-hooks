@@ -6,10 +6,9 @@ function List(props) {
 
   return (
     <ul className="list">
-      {todos.map(({ id, title, completed }, index) => (
+      {todos.map(({ id, title, completed }) => (
         <Item
           key={id}
-          index={index}
           id={id}
           title={title}
           completed={completed}
@@ -19,7 +18,25 @@ function List(props) {
         />
       ))}
     </ul>
-  );
+  )
+  // return useMemo(() => {
+  //   return (
+  //     <ul className="list">
+  //       {todos.map(({ id, title, completed }) => (
+  //         <Item
+  //           key={id}
+  //           id={id}
+  //           title={title}
+  //           completed={completed}
+  //           moveTodo={moveTodo}
+  //           toggleCompleted={toggleCompleted}
+  //           deleteTodo={deleteTodo}
+  //         />
+  //       ))}
+  //     </ul>
+  //   )
+  // }, [deleteTodo, moveTodo, todos, toggleCompleted])
+  
 }
 
 export default List;

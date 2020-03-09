@@ -1,6 +1,7 @@
 import React, { useCallback, useRef } from 'react';
 
 function Form(props) {
+  const { insertNewTodo } = props;
   const input = useRef(null);
 
   const handleSubmit = useCallback(e => {
@@ -14,18 +15,18 @@ function Form(props) {
       if(value === '') return false;
     }
 
-    props.insertNewTodo(value);
+    insertNewTodo(value);
 
     inputEl.value = '';
     inputEl.focus();
-  }, [props]);
+  }, [insertNewTodo]);
 
   return (
     <div className="header">
       <input type="text" className="new-todo" ref={input} onKeyPress={handleSubmit} />
       <button type="button" className="btn-submit" onClick={handleSubmit}>등록</button>
     </div>
-  );
+  )
 }
 
 export default Form;
