@@ -3,8 +3,13 @@ import Form from './Form';
 import List from './List';
 
 function App() {
-  const localStorageData = JSON.parse(localStorage.getItem('todolist')); // 한번만 작동하게
-  const [todos, setTodos] = useState(localStorageData !== null ? localStorageData : []);
+  const [todos, setTodos] = useState([]);
+
+  useEffect(() => {
+    const localStorageData = JSON.parse(localStorage.getItem('todolist'));
+
+    setTodos(() => localStorageData !== null ? localStorageData : [])
+  }, [])
 
   useEffect(() => {
     localStorage.setItem('todolist', JSON.stringify(todos));
