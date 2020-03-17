@@ -4,8 +4,6 @@ function Item(props) {
   const { id, title, completed, deleteTodo, toggleCompleted, moveTodo } = props;
 
   useEffect(() => {
-    return () => {}
-
   }, [completed]);
 
   const upMoveTodo = useCallback(() => {
@@ -35,4 +33,10 @@ function Item(props) {
   )
 }
 
-export default React.memo(Item);
+function areEqual(prevProps, nextProps) {
+  const compareCompleted = prevProps.completed === nextProps.completed;
+
+  return compareCompleted;
+}
+
+export default React.memo(Item, areEqual);
